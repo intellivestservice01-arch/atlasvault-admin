@@ -601,7 +601,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
 <script>
 // ===== AUTO DETECT API =====
 const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
-const API = isLocal ? 'http://localhost:5000' : 'ATLASVAULT_API_URL';
+const API = isLocal ? 'http://localhost:5000' : 'https://atlasvault-backend.onrender.com';
 
 let token = localStorage.getItem('bpf_admin');
 let curUID = null, curSUID = null, curKYCID = null, curUD = null;
