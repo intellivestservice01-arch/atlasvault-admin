@@ -276,7 +276,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
     <div class="logo-ring">
       <div class="logo-inner"><div class="logo-b">B</div></div>
     </div>
-    <div class="brand-name">Blue<span>Peak</span></div>
+    <div class="brand-name">Atlas<span>Vault</span></div>
     <div class="brand-sub">Finance · Admin</div>
     <div class="load-bar"><div class="load-fill"></div></div>
     <div class="load-text">Initializing secure panel...</div>
@@ -309,7 +309,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
   <div class="layout">
     <aside class="sidebar" id="sidebar">
       <div class="s-logo">
-        <div class="s-logo-icon">B</div>
+        <div class="s-logo-icon">A</div>
         <div class="s-brand">AtlasVault Finance<span>Admin Panel v1.0</span></div>
       </div>
       <nav class="s-nav">
@@ -603,7 +603,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
 const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
 const API = isLocal ? 'http://localhost:5000' : 'https://atlasvault-backend.onrender.com';
 
-let token = localStorage.getItem('bpf_admin');
+let token = localStorage.getItem('avf_admin');
 let curUID = null, curSUID = null, curKYCID = null, curUD = null;
 let csInt = null, supInt = null, lastCSID = 0, lastSID = 0;
 
@@ -636,7 +636,7 @@ async function doLogin(){
     const res=await fetch(`${API}/api/admin/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
     const data=await res.json();
     if(!res.ok){err.textContent=data.error||'Login failed';err.style.display='block';btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;return;}
-    token=data.token;localStorage.setItem('bpf_admin',token);
+    token=data.token;localStorage.setItem('avf_admin',token);
     document.getElementById('admin-name').textContent=data.admin?.username||'Admin';
     document.getElementById('login-page').style.display='none';
     showApp();
@@ -649,7 +649,7 @@ async function doLogin(){
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-page').style.display!=='none')doLogin();});
 
 function showApp(){document.getElementById('app').style.display='block';loadDash();setInterval(refreshBadges,15000);refreshBadges();}
-function logout(){localStorage.removeItem('bpf_admin');token=null;document.getElementById('app').style.display='none';document.getElementById('login-page').style.display='flex';}
+function logout(){localStorage.removeItem('avf_admin');token=null;document.getElementById('app').style.display='none';document.getElementById('login-page').style.display='flex';}
 
 // ===== API =====
 async function api(path,method='GET',body=null){
