@@ -640,7 +640,15 @@ window.addEventListener('DOMContentLoaded', () => {
     l.style.transition='opacity .6s';l.style.opacity='0';
     setTimeout(()=>{
       l.style.display='none';
-      if(token){showApp();}else{document.getElementById('login-page').style.display='flex';}
+      if(token){
+        // Verify token is still valid before showing app
+        fetch(API+'/api/admin/dashboard',{headers:{'Authorization':'Bearer '+token}})
+          .then(r=>{
+            if(r.ok){showApp();}
+            else{token=null;localStorage.removeItem('avf_admin');document.getElementById('login-page').style.display='flex';}
+          })
+          .catch(()=>{document.getElementById('login-page').style.display='flex';});
+      }else{document.getElementById('login-page').style.display='flex';}
     },600);
   },2800);
 });
