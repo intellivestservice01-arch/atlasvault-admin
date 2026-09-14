@@ -274,7 +274,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
   <div id="parts-wrap"></div>
   <div class="loader-content">
     <div class="logo-ring">
-      <div class="logo-inner"><div class="logo-b">B</div></div>
+      <div class="logo-inner"><div class="logo-b">A</div></div>
     </div>
     <div class="brand-name">Atlas<span>Vault</span></div>
     <div class="brand-sub">Finance · Admin</div>
@@ -641,16 +641,15 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(()=>{
       l.style.display='none';
       if(token){
-        // Verify token is still valid before showing app
-        fetch(API+'/api/admin/dashboard',{headers:{'Authorization':'Bearer '+token}})
-          .then(r=>{
-            if(r.ok){showApp();}
-            else{token=null;localStorage.removeItem('avf_admin');document.getElementById('login-page').style.display='flex';}
-          })
-          .catch(()=>{document.getElementById('login-page').style.display='flex';});
+        // Verify token with timeout to avoid infinite loading
+        const controller = new AbortController();
+        const timeout = setTimeout(()=>controller.abort(), 8000);
+        fetch(API+'/api/admin/dashboard',{headers:{'Authorization':'Bearer '+token},signal:controller.signal})
+          .then(r=>{clearTimeout(timeout);if(r.ok){showApp();}else{token=null;localStorage.removeItem('avf_admin');document.getElementById('login-page').style.display='flex';}})
+          .catch(()=>{clearTimeout(timeout);token=null;localStorage.removeItem('avf_admin');document.getElementById('login-page').style.display='flex';});
       }else{document.getElementById('login-page').style.display='flex';}
     },600);
-  },2800);
+  },1800);
 });
 
 // ===== AUTH =====
