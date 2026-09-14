@@ -287,18 +287,40 @@ textarea.form-control{resize:vertical;min-height:96px;}
 <div id="login-page">
   <div class="login-box">
     <div class="login-logo">
-      <div class="l-icon">B</div>
+      <div class="l-icon">A</div>
       <h1>AtlasVault Finance</h1>
       <p>Admin Control Panel</p>
     </div>
     <div class="login-error" id="login-err"></div>
-    <div class="input-wrap"><i class="fas fa-user"></i><input id="l-user" type="text" placeholder="Admin username" autocomplete="username"></div>
-    <div class="input-wrap"><i class="fas fa-lock"></i><input id="l-pass" type="password" placeholder="Admin password" autocomplete="current-password"></div>
-    <button class="btn btn-gold" style="width:100%;justify-content:center;padding:12px;font-size:.88rem;" onclick="doLogin()" id="l-btn">
-      <i class="fas fa-shield-alt"></i> Sign In to Admin Panel
-    </button>
-    <div class="default-creds">
-      Default — Username: <span>atlasvaultadmin</span> &nbsp;|&nbsp; Password: <span>AtlasVault@Admin2026!</span>
+    <!-- STEP 1: Username + Password -->
+    <div id="login-step1">
+      <div class="input-wrap"><i class="fas fa-user"></i><input id="l-user" type="text" placeholder="Admin username" autocomplete="username"></div>
+      <div class="input-wrap"><i class="fas fa-lock"></i><input id="l-pass" type="password" placeholder="Admin password" autocomplete="current-password"></div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;padding:12px;font-size:.88rem;" onclick="doLogin()" id="l-btn">
+        <i class="fas fa-shield-alt"></i> Sign In to Admin Panel
+      </button>
+    </div>
+    <!-- STEP 2: 2FA Code -->
+    <div id="login-step2" style="display:none">
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(0,212,170,.1);border:2px solid #00D4AA;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.2rem;color:#00D4AA"><i class="fas fa-envelope-open-text"></i></div>
+        <p id="fa-msg" style="font-size:.82rem;color:var(--text2,#888);line-height:1.5">A 5-digit security code has been sent to the admin email.</p>
+      </div>
+      <input type="hidden" id="fa-user">
+      <input type="hidden" id="fa-pass">
+      <div style="display:flex;gap:8px;justify-content:center;margin:16px 0">
+        <input type="text" maxlength="1" id="fa-c1" oninput="oN2(this,'fa-c2')" style="width:46px;height:54px;text-align:center;font-size:1.3rem;font-weight:700;background:var(--bg2,#1a1a2e);border:2px solid var(--border,#333);border-radius:10px;color:var(--text,#fff);outline:none;transition:border .2s" onfocus="this.style.borderColor='#00D4AA'" onblur="this.style.borderColor=''">
+        <input type="text" maxlength="1" id="fa-c2" oninput="oN2(this,'fa-c3')" onkeydown="oB2(event,this,'fa-c1')" style="width:46px;height:54px;text-align:center;font-size:1.3rem;font-weight:700;background:var(--bg2,#1a1a2e);border:2px solid var(--border,#333);border-radius:10px;color:var(--text,#fff);outline:none;transition:border .2s" onfocus="this.style.borderColor='#00D4AA'" onblur="this.style.borderColor=''">
+        <input type="text" maxlength="1" id="fa-c3" oninput="oN2(this,'fa-c4')" onkeydown="oB2(event,this,'fa-c2')" style="width:46px;height:54px;text-align:center;font-size:1.3rem;font-weight:700;background:var(--bg2,#1a1a2e);border:2px solid var(--border,#333);border-radius:10px;color:var(--text,#fff);outline:none;transition:border .2s" onfocus="this.style.borderColor='#00D4AA'" onblur="this.style.borderColor=''">
+        <input type="text" maxlength="1" id="fa-c4" oninput="oN2(this,'fa-c5')" onkeydown="oB2(event,this,'fa-c3')" style="width:46px;height:54px;text-align:center;font-size:1.3rem;font-weight:700;background:var(--bg2,#1a1a2e);border:2px solid var(--border,#333);border-radius:10px;color:var(--text,#fff);outline:none;transition:border .2s" onfocus="this.style.borderColor='#00D4AA'" onblur="this.style.borderColor=''">
+        <input type="text" maxlength="1" id="fa-c5" oninput="oN2(this,null)" onkeydown="oB2(event,this,'fa-c4')" style="width:46px;height:54px;text-align:center;font-size:1.3rem;font-weight:700;background:var(--bg2,#1a1a2e);border:2px solid var(--border,#333);border-radius:10px;color:var(--text,#fff);outline:none;transition:border .2s" onfocus="this.style.borderColor='#00D4AA'" onblur="this.style.borderColor=''">
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;padding:12px;font-size:.88rem;" onclick="verify2FA()" id="fa-btn">
+        <i class="fas fa-check-shield"></i> Verify & Login
+      </button>
+      <button onclick="document.getElementById('login-step1').style.display='block';document.getElementById('login-step2').style.display='none'" style="width:100%;background:none;border:1px solid var(--border,#333);color:var(--text2,#888);padding:10px;border-radius:8px;margin-top:8px;cursor:pointer;font-size:.82rem">
+        <i class="fas fa-arrow-left"></i> Back to Login
+      </button>
     </div>
   </div>
 </div>
@@ -625,12 +647,41 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ===== AUTH =====
 async function doLogin(){
-  const u=document.getElementById('l-user').value.trim();
-  const p=document.getElementById('l-pass').value.trim();
-  const err=document.getElementById('login-err');
+  const u=document.getElementById('l-user').value,p=document.getElementById('l-pass').value;
+  if(!u||!p)return showErr('Fill all fields');
   const btn=document.getElementById('l-btn');
-  err.style.display='none';
-  if(!u||!p){err.textContent='Enter username and password';err.style.display='block';return;}
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending code...';btn.disabled=true;
+  const r=await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const d=await r.json();
+  btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
+  if(!r.ok)return showErr(d.error||'Login failed');
+  if(d.requires2FA){
+    // Show 2FA screen
+    document.getElementById('login-step1').style.display='none';
+    document.getElementById('login-step2').style.display='block';
+    document.getElementById('fa-msg').textContent='A 5-digit code has been sent to your admin email. Enter it below.';
+    document.getElementById('fa-user').value=u;
+    document.getElementById('fa-pass').value=p;
+    document.getElementById('fa-c1').focus();
+  }
+}
+
+async function verify2FA(){
+  const u=document.getElementById('fa-user').value;
+  const p=document.getElementById('fa-pass').value;
+  const otp=['fa-c1','fa-c2','fa-c3','fa-c4','fa-c5'].map(id=>document.getElementById(id).value).join('');
+  if(otp.length!==5)return showErr('Enter all 5 digits');
+  const btn=document.getElementById('fa-btn');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verifying...';btn.disabled=true;
+  const r=await fetch(API+'/api/admin/verify-2fa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,otp})});
+  const d=await r.json();
+  btn.innerHTML='<i class="fas fa-check"></i> Verify Code';btn.disabled=false;
+  if(!r.ok)return showErr(d.error||'Invalid code');
+  token=d.token;localStorage.setItem('avf_admin',token);showApp();
+}
+
+function oN2(e,n){if(e.value&&n)document.getElementById(n).focus();}
+function oB2(ev,e,p){if(ev.key==='Backspace'&&!e.value&&p)document.getElementById(p).focus();}
   btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in...';btn.disabled=true;
   try{
     const res=await fetch(`${API}/api/admin/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
