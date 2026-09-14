@@ -643,21 +643,29 @@ window.addEventListener('DOMContentLoaded', () => {
 // ===== AUTH =====
 async function doLogin(){
   const u=document.getElementById('l-user').value,p=document.getElementById('l-pass').value;
-  if(!u||!p)return showErr('Fill all fields');
+  const err=document.getElementById('login-err');
+  err.style.display='none';
+  if(!u||!p){err.textContent='Please fill in username and password';err.style.display='block';return;}
   const btn=document.getElementById('l-btn');
-  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending code...';btn.disabled=true;
-  const r=await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
-  const d=await r.json();
-  btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
-  if(!r.ok)return showErr(d.error||'Login failed');
-  if(d.requires2FA){
-    // Show 2FA screen
-    document.getElementById('login-step1').style.display='none';
-    document.getElementById('login-step2').style.display='block';
-    document.getElementById('fa-msg').textContent='A 5-digit code has been sent to your admin email. Enter it below.';
-    document.getElementById('fa-user').value=u;
-    document.getElementById('fa-pass').value=p;
-    document.getElementById('fa-c1').focus();
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in...';btn.disabled=true;
+  try{
+    const r=await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const d=await r.json();
+    btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
+    if(!r.ok){err.textContent=d.error||'Invalid credentials';err.style.display='block';return;}
+    if(d.requires2FA){
+      document.getElementById('login-step1').style.display='none';
+      document.getElementById('login-step2').style.display='block';
+      document.getElementById('fa-msg').textContent='A 5-digit code has been sent to the admin email. Enter it below.';
+      document.getElementById('fa-user').value=u;
+      document.getElementById('fa-pass').value=p;
+      document.getElementById('fa-c1').focus();
+    } else if(d.token){
+      token=d.token;localStorage.setItem('avf_admin',token);showApp();
+    }
+  }catch(e){
+    btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
+    err.textContent='❌ Cannot connect to backend. Please try again.';err.style.display='block';
   }
 }
 
@@ -671,30 +679,27 @@ async function verify2FA(){
   const r=await fetch(API+'/api/admin/verify-2fa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,otp})});
   const d=await r.json();
   btn.innerHTML='<i class="fas fa-check"></i> Verify Code';btn.disabled=false;
-  if(!r.ok)return showErr(d.error||'Invalid code');
+  const err=document.getElementById('login-err');
+  if(!r.ok){
+    btn.innerHTML='<i class="fas fa-check"></i> Verify & Login';btn.disabled=false;
+    err.textContent=d.error||'Invalid code. Please try again.';err.style.display='block';
+    return;
+  }
   token=d.token;localStorage.setItem('avf_admin',token);showApp();
 }
 
 function oN2(e,n){if(e.value&&n)document.getElementById(n).focus();}
 function oB2(ev,e,p){if(ev.key==='Backspace'&&!e.value&&p)document.getElementById(p).focus();}
-  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in...';btn.disabled=true;
-  try{
-    const res=await fetch(`${API}/api/admin/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
-    const data=await res.json();
-    if(!res.ok){err.textContent=data.error||'Login failed';err.style.display='block';btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;return;}
-    token=data.token;localStorage.setItem('avf_admin',token);
-    document.getElementById('admin-name').textContent=data.admin?.username||'Admin';
-    document.getElementById('login-page').style.display='none';
-    showApp();
-  }catch(e){
-    err.textContent=`❌ Cannot connect to backend.\n\nAPI URL: ${API}\n\nMake sure backend is running with: npm start`;
-    err.style.display='block';err.style.whiteSpace='pre-line';
-    btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
-  }
-}
+
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-page').style.display!=='none')doLogin();});
 
-function showApp(){document.getElementById('app').style.display='block';loadDash();setInterval(refreshBadges,15000);refreshBadges();}
+function showApp(){
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadDash();
+  setInterval(refreshBadges,15000);
+  refreshBadges();
+}
 function logout(){localStorage.removeItem('avf_admin');token=null;document.getElementById('app').style.display='none';document.getElementById('login-page').style.display='flex';}
 
 // ===== API =====
