@@ -647,33 +647,50 @@ async function doLogin(){
   err.style.display='none';
   if(!u||!p){err.textContent='Please fill in username and password';err.style.display='block';return;}
   const btn=document.getElementById('l-btn');
-  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in...';btn.disabled=true;
-  try{
-    const r=await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
-    const d=await r.json();
-    btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
-    if(!r.ok){err.textContent=d.error||'Invalid credentials';err.style.display='block';return;}
-    if(d.requires2FA){
-      document.getElementById('login-step1').style.display='none';
-      document.getElementById('login-step2').style.display='block';
-      document.getElementById('fa-msg').textContent='A 5-digit code has been sent to the admin email. Enter it below.';
-      document.getElementById('fa-user').value=u;
-      document.getElementById('fa-pass').value=p;
-      document.getElementById('fa-c1').focus();
-    } else if(d.token){
-      token=d.token;localStorage.setItem('avf_admin',token);showApp();
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Connecting...';btn.disabled=true;
+  // Wake up backend first (free tier sleeps)
+  let attempts=0;
+  const tryLogin=async()=>{
+    attempts++;
+    if(attempts>1) btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> Waking server (${attempts})...`;
+    try{
+      const r=await fetch(API+'/api/admin/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({username:u,password:p}),
+        signal:AbortSignal.timeout(15000)
+      });
+      const d=await r.json();
+      btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
+      if(!r.ok){err.textContent=d.error||'Invalid credentials';err.style.display='block';return;}
+      if(d.requires2FA){
+        document.getElementById('login-step1').style.display='none';
+        document.getElementById('login-step2').style.display='block';
+        document.getElementById('fa-msg').textContent='A 5-digit security code has been sent to the admin email.';
+        document.getElementById('fa-user').value=u;
+        document.getElementById('fa-pass').value=p;
+        document.getElementById('fa-c1').focus();
+      } else if(d.token){
+        token=d.token;localStorage.setItem('avf_admin',token);showApp();
+      }
+    }catch(e){
+      if(attempts<4){
+        btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> Retrying (${attempts}/3)...`;
+        setTimeout(tryLogin,3000);
+      } else {
+        btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
+        err.textContent='❌ Cannot reach server. Backend may be starting up — wait 30 seconds and try again.';err.style.display='block';
+      }
     }
-  }catch(e){
-    btn.innerHTML='<i class="fas fa-shield-alt"></i> Sign In to Admin Panel';btn.disabled=false;
-    err.textContent='❌ Cannot connect to backend. Please try again.';err.style.display='block';
-  }
+  };
+  tryLogin();
 }
 
 async function verify2FA(){
   const u=document.getElementById('fa-user').value;
   const p=document.getElementById('fa-pass').value;
   const otp=['fa-c1','fa-c2','fa-c3','fa-c4','fa-c5'].map(id=>document.getElementById(id).value).join('');
-  if(otp.length!==5)return showErr('Enter all 5 digits');
+  if(otp.length!==5){const e=document.getElementById('login-err');e.textContent='Please enter all 5 digits';e.style.display='block';return;}
   const btn=document.getElementById('fa-btn');
   btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verifying...';btn.disabled=true;
   const r=await fetch(API+'/api/admin/verify-2fa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,otp})});
@@ -688,6 +705,7 @@ async function verify2FA(){
   token=d.token;localStorage.setItem('avf_admin',token);showApp();
 }
 
+function showErr(msg){const e=document.getElementById("login-err");if(e){e.textContent=msg;e.style.display="block";}}
 function oN2(e,n){if(e.value&&n)document.getElementById(n).focus();}
 function oB2(ev,e,p){if(ev.key==='Backspace'&&!e.value&&p)document.getElementById(p).focus();}
 
