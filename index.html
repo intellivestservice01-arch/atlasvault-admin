@@ -770,6 +770,24 @@ async function refreshBadges(){
   document.getElementById('bd-loans').textContent=s.pending_loans||0;
   document.getElementById('bd-kyc').textContent=s.pending_kyc||0;
   document.getElementById('bd-tix').textContent=s.open_tickets||0;
+  // Check CS unread messages
+  try {
+    const cs=await api('/api/admin/chat/unread-count');
+    if(cs){
+      const csEl=document.getElementById('bd-cs');
+      const supEl=document.getElementById('bd-sup');
+      const csCount=cs.customer_service||0;
+      const supCount=cs.support||0;
+      if(csEl){csEl.textContent=csCount;csEl.style.display=csCount>0?'inline-flex':'none';}
+      if(supEl){supEl.textContent=supCount;supEl.style.display=supCount>0?'inline-flex':'none';}
+      // Highlight CS nav if unread
+      const csNav=document.querySelector('[onclick="go('cs')"]');
+      if(csNav){
+        if(csCount>0){csNav.style.background='rgba(0,212,170,0.12)';csNav.style.borderLeft='3px solid #00D4AA';}
+        else{csNav.style.background='';csNav.style.borderLeft='';}
+      }
+    }
+  } catch(e){}
 }
 
 // ===== USERS =====
