@@ -799,7 +799,7 @@ async function refreshBadges(){
       if(csEl){csEl.textContent=csCount;csEl.style.display=csCount>0?'inline-flex':'none';}
       if(supEl){supEl.textContent=supCount;supEl.style.display=supCount>0?'inline-flex':'none';}
       // Highlight CS nav if unread
-      const csNav=document.querySelector('[onclick="go('cs')"]');
+      const csNav=document.querySelector('[onclick="go(\'cs\')"]');
       if(csNav){
         if(csCount>0){csNav.style.background='rgba(0,212,170,0.12)';csNav.style.borderLeft='3px solid #00D4AA';}
         else{csNav.style.background='';csNav.style.borderLeft='';}
@@ -1054,10 +1054,10 @@ function showResetPass() {
   if (!confirm(`Reset password for ${u.first_name} ${u.last_name} to: ${np}?`)) return;
   fetch(API + '/api/admin/users/' + u.id + '/reset-password', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
     body: JSON.stringify({ newPassword: np })
   }).then(r => r.json()).then(d => {
-    if (d.success) { alert('✅ Password reset successfully!\nNew password: ' + np); cM('muser'); }
+    if (d.success) { alert('✅ Password reset successfully!\nNew password: ' + np); closeM('m-user'); }
     else alert('❌ Error: ' + (d.error || 'Failed'));
   });
 }
@@ -1071,10 +1071,10 @@ function showResetPin() {
   if (!confirm(`Reset PIN for ${u.first_name} ${u.last_name} to: ${np}?`)) return;
   fetch(API + '/api/admin/users/' + u.id + '/reset-pin', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
     body: JSON.stringify({ newPin: np })
   }).then(r => r.json()).then(d => {
-    if (d.success) { alert('✅ PIN reset successfully!\nNew PIN: ' + np); cM('muser'); }
+    if (d.success) { alert('✅ PIN reset successfully!\nNew PIN: ' + np); closeM('m-user'); }
     else alert('❌ Error: ' + (d.error || 'Failed'));
   });
 }
