@@ -184,6 +184,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
 .cu-prev{font-size:.71rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px;}
 .chat-main{display:flex;flex-direction:column;min-height:0;}
 .chat-hdr{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);flex-shrink:0;}
+.chat-back{display:none;background:none;border:none;color:var(--text2);font-size:1rem;cursor:pointer;padding:4px 8px 4px 0;flex-shrink:0;}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;}
 .chat-msgs::-webkit-scrollbar{width:3px;}
 .chat-msgs::-webkit-scrollbar-thumb{background:var(--border);}
@@ -256,7 +257,11 @@ textarea.form-control{resize:vertical;min-height:96px;}
   .main{margin-left:0;}
   .menu-toggle{display:flex;}
   .chat-layout{grid-template-columns:1fr;}
-  .chat-list{display:none;}
+  .chat-list{display:flex;}
+  .chat-main{display:none;}
+  .chat-layout.chat-open .chat-list{display:none;}
+  .chat-layout.chat-open .chat-main{display:flex;}
+  .chat-back{display:flex;align-items:center;justify-content:center;}
   .form-row,.grid-2{grid-template-columns:1fr;}
   .stats-grid{grid-template-columns:1fr 1fr;}
   .content{padding:14px;}
@@ -744,6 +749,7 @@ function go(name){
   document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.toLowerCase().includes(name.replace('-',' ')))n.classList.add('active');});
   document.getElementById('pg-title').textContent=titles[name]||name;
   closeSidebar();
+  document.querySelectorAll('.chat-layout').forEach(l=>l.classList.remove('chat-open'));
   if(csInt){clearInterval(csInt);csInt=null;}
   if(supInt){clearInterval(supInt);supInt=null;}
   const loaders={dashboard:loadDash,users:loadUsers,transactions:loadTxns,deposits:loadDeposits,withdrawals:loadWdws,kyc:loadKYC,loans:loadLoans,investments:()=>{loadInv();loadPlans();},cards:loadCards,irs:loadIRS,cs:loadCS,sup:loadSup,tickets:loadTickets,monitor:loadMonitor,settings:loadSettings};
@@ -918,7 +924,8 @@ async function openCS(uid,name){
   curUID=uid;
   document.getElementById('cs-empty').style.display='none';
   const a=document.getElementById('cs-active');a.style.display='flex';
-  document.getElementById('cs-hdr').innerHTML=`<div style="display:flex;align-items:center;gap:9px"><div class="cu-av">${name.split(' ').map(n=>n[0]).join('')}</div><div><strong>${name}</strong><br><span style="font-size:.7rem;color:var(--text2)">User ID: ${uid}</span></div></div>`;
+  document.querySelector('#page-cs .chat-layout')?.classList.add('chat-open');
+  document.getElementById('cs-hdr').innerHTML=`<div style="display:flex;align-items:center;gap:9px"><button class="chat-back" onclick="closeChatMobile('cs')"><i class="fas fa-arrow-left"></i></button><div class="cu-av">${name.split(' ').map(n=>n[0]).join('')}</div><div><strong>${name}</strong><br><span style="font-size:.7rem;color:var(--text2)">User ID: ${uid}</span></div></div>`;
   lastCSID=0;await fetchCSMsgs();
   if(csInt)clearInterval(csInt);csInt=setInterval(fetchCSMsgs,3000);
   loadCS();
@@ -956,7 +963,8 @@ async function openSup(uid,name){
   curSUID=uid;
   document.getElementById('sup-empty').style.display='none';
   document.getElementById('sup-active').style.display='flex';
-  document.getElementById('sup-hdr').innerHTML=`<div style="display:flex;align-items:center;gap:9px"><div class="cu-av">${name.split(' ').map(n=>n[0]).join('')}</div><strong>${name}</strong></div>`;
+  document.querySelector('#page-sup .chat-layout')?.classList.add('chat-open');
+  document.getElementById('sup-hdr').innerHTML=`<div style="display:flex;align-items:center;gap:9px"><button class="chat-back" onclick="closeChatMobile('sup')"><i class="fas fa-arrow-left"></i></button><div class="cu-av">${name.split(' ').map(n=>n[0]).join('')}</div><strong>${name}</strong></div>`;
   lastSID=0;await fetchSupMsgs();
   if(supInt)clearInterval(supInt);supInt=setInterval(fetchSupMsgs,3000);
 }
@@ -1045,6 +1053,12 @@ async function saveRates(curs){
 function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('active');}
 function closeLB(){document.getElementById('lb').classList.remove('active');}
 
+// ===== MOBILE CHAT BACK =====
+function closeChatMobile(type){
+  const layout=document.querySelector(type==='cs' ? '#page-cs .chat-layout' : '#page-sup .chat-layout');
+  if(layout)layout.classList.remove('chat-open');
+}
+
 // ===== RESET PASSWORD =====
 function showResetPass() {
   const u = window.currentUser;
@@ -1054,10 +1068,10 @@ function showResetPass() {
   if (!confirm(`Reset password for ${u.first_name} ${u.last_name} to: ${np}?`)) return;
   fetch(API + '/api/admin/users/' + u.id + '/reset-password', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
     body: JSON.stringify({ newPassword: np })
   }).then(r => r.json()).then(d => {
-    if (d.success) { alert('✅ Password reset successfully!\nNew password: ' + np); closeM('m-user'); }
+    if (d.success) { alert('✅ Password reset successfully!\nNew password: ' + np); cM('muser'); }
     else alert('❌ Error: ' + (d.error || 'Failed'));
   });
 }
@@ -1071,10 +1085,10 @@ function showResetPin() {
   if (!confirm(`Reset PIN for ${u.first_name} ${u.last_name} to: ${np}?`)) return;
   fetch(API + '/api/admin/users/' + u.id + '/reset-pin', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
     body: JSON.stringify({ newPin: np })
   }).then(r => r.json()).then(d => {
-    if (d.success) { alert('✅ PIN reset successfully!\nNew PIN: ' + np); closeM('m-user'); }
+    if (d.success) { alert('✅ PIN reset successfully!\nNew PIN: ' + np); cM('muser'); }
     else alert('❌ Error: ' + (d.error || 'Failed'));
   });
 }
