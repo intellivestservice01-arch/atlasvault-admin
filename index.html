@@ -346,6 +346,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
         <div class="nav-item" onclick="go('withdrawals')"><i class="fas fa-arrow-up"></i>Withdrawals<span class="nbadge" id="bd-wdw">0</span></div>
         <div class="nav-item" onclick="go('loans')"><i class="fas fa-hand-holding-dollar"></i>Loans<span class="nbadge" id="bd-loans">0</span></div>
         <div class="nav-item" onclick="go('investments')"><i class="fas fa-chart-line"></i>Investments</div>
+        <div class="nav-item" onclick="go('trading')"><i class="fas fa-chart-bar"></i>Trading Control</div>
         <div class="s-label">Verification</div>
         <div class="nav-item" onclick="go('kyc')"><i class="fas fa-id-card"></i>KYC Review<span class="nbadge" id="bd-kyc">0</span></div>
         <div class="nav-item" onclick="go('cards')"><i class="fas fa-credit-card"></i>Virtual Cards</div>
@@ -529,6 +530,51 @@ textarea.form-control{resize:vertical;min-height:96px;}
         </div>
 
         <!-- SETTINGS -->
+
+        <!-- TRADING CONTROL PAGE -->
+        <div class="page" id="page-trading">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+            <div class="stat-card"><div class="si si-green"><i class="fas fa-chart-bar"></i></div><div><div class="stat-label">Active Trades</div><div class="stat-value" id="tv-count">-</div></div></div>
+            <div class="stat-card"><div class="si si-blue"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-label">Total Invested</div><div class="stat-value" id="tv-volume">-</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title"><i class="fas fa-chart-bar"></i>Active User Trades</div>
+              <button class="btn btn-sm" onclick="loadTrading()"><i class="fas fa-refresh"></i></button>
+            </div>
+            <div class="tw"><table><thead><tr><th>User</th><th>Asset</th><th>Amount</th><th>Current Value</th><th>P&L</th><th>Date</th><th>Set P&L</th></tr></thead><tbody id="tv-tbl"></tbody></table></div>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <div class="card-hdr"><div class="card-title"><i class="fas fa-coins"></i>Asset Prices</div></div>
+            <div class="tw"><table><thead><tr><th>Symbol</th><th>Name</th><th>Category</th><th>Current Price</th><th>24h Change</th><th>Update</th></tr></thead><tbody id="tv-assets-tbl"></tbody></table></div>
+          </div>
+        </div>
+        <!-- PNL MODAL -->
+        <div class="modal-overlay" id="tv-pnl-modal" style="display:none">
+          <div class="modal-box" style="max-width:400px">
+            <div class="modal-hdr"><span id="tv-pnl-title">Set P&L</span><button onclick="closeModal('tv-pnl-modal')">&times;</button></div>
+            <div class="modal-body">
+              <input type="hidden" id="tv-pnl-tid">
+              <div class="form-group"><label class="form-label">P&L Amount (positive = profit, negative = loss)</label><input class="form-control" type="number" id="tv-pnl-val" placeholder="e.g. 150 or -50"></div>
+              <div style="font-size:.78rem;color:var(--text2);margin-bottom:14px">⚠️ User will see this P&L after 2 days from trade date.</div>
+              <button class="btn btn-green" style="width:100%" onclick="setPNL()"><i class="fas fa-check"></i> Set P&L</button>
+            </div>
+          </div>
+        </div>
+        <!-- PRICE MODAL -->
+        <div class="modal-overlay" id="tv-price-modal" style="display:none">
+          <div class="modal-box" style="max-width:380px">
+            <div class="modal-hdr"><span id="tv-price-title">Update Price</span><button onclick="closeModal('tv-price-modal')">&times;</button></div>
+            <div class="modal-body">
+              <input type="hidden" id="tv-price-aid">
+              <div class="form-group"><label class="form-label">New Price</label><input class="form-control" type="number" step="any" id="tv-price-val" placeholder="0.00"></div>
+              <div class="form-group"><label class="form-label">24h Change Amount</label><input class="form-control" type="number" step="any" id="tv-price-chg" placeholder="e.g. 1.50 or -0.80"></div>
+              <div class="form-group"><label class="form-label">24h Change %</label><input class="form-control" type="number" step="any" id="tv-price-pct" placeholder="e.g. 1.25 or -0.50"></div>
+              <button class="btn btn-green" style="width:100%" onclick="updatePrice()"><i class="fas fa-check"></i> Update Price</button>
+            </div>
+          </div>
+        </div>
+
         <div class="page" id="page-settings">
           <div class="grid-2">
             <div class="card">
@@ -741,7 +787,7 @@ async function apiForm(path,method,fd){
 }
 
 // ===== NAV =====
-const titles={dashboard:'Dashboard',users:'User Management',transactions:'All Transactions',deposits:'Deposit Requests',withdrawals:'Withdrawal Requests',kyc:'KYC Review',loans:'Loan Applications',investments:'Investments',cs:'Customer Service',sup:'Support Chat',tickets:'Support Tickets',broadcast:'Broadcast',monitor:'System Monitor',settings:'Settings',cards:'Virtual Cards',irs:'IRS Tax Refund'};
+const titles={dashboard:'Dashboard',users:'User Management',transactions:'All Transactions',deposits:'Deposit Requests',withdrawals:'Withdrawal Requests',kyc:'KYC Review',loans:'Loan Applications',investments:'Investments',trading:'Trading Control',cs:'Customer Service',sup:'Support Chat',tickets:'Support Tickets',broadcast:'Broadcast',monitor:'System Monitor',settings:'Settings',cards:'Virtual Cards',irs:'IRS Tax Refund'};
 function go(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -752,7 +798,7 @@ function go(name){
   document.querySelectorAll('.chat-layout').forEach(l=>l.classList.remove('chat-open'));
   if(csInt){clearInterval(csInt);csInt=null;}
   if(supInt){clearInterval(supInt);supInt=null;}
-  const loaders={dashboard:loadDash,users:loadUsers,transactions:loadTxns,deposits:loadDeposits,withdrawals:loadWdws,kyc:loadKYC,loans:loadLoans,investments:()=>{loadInv();loadPlans();},cards:loadCards,irs:loadIRS,cs:loadCS,sup:loadSup,tickets:loadTickets,monitor:loadMonitor,settings:loadSettings};
+  const loaders={dashboard:loadDash,users:loadUsers,transactions:loadTxns,deposits:loadDeposits,withdrawals:loadWdws,kyc:loadKYC,loans:loadLoans,investments:()=>{loadInv();loadPlans();},trading:loadTrading,cards:loadCards,irs:loadIRS,cs:loadCS,sup:loadSup,tickets:loadTickets,monitor:loadMonitor,settings:loadSettings};
   if(loaders[name])loaders[name]();
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active');}
@@ -1092,6 +1138,87 @@ function showResetPin() {
     else alert('❌ Error: ' + (d.error || 'Failed'));
   });
 }
+
+// ===== ADMIN TRADING CONTROL =====
+async function loadTrading(){
+  const [trades, assets] = await Promise.all([
+    api('/api/admin/trading/trades'),
+    api('/api/admin/trading/assets')
+  ]);
+  if(trades){
+    const total=trades.length;
+    const vol=trades.reduce((s,t)=>s+parseFloat(t.amount_invested||0),0);
+    const cel=document.getElementById('tv-count');
+    const vel=document.getElementById('tv-volume');
+    if(cel)cel.textContent=total;
+    if(vel)vel.textContent='$'+vol.toLocaleString(undefined,{minimumFractionDigits:2});
+    const tbl=document.getElementById('tv-tbl');
+    if(tbl)tbl.innerHTML=trades.map(t=>{
+      const pnl=parseFloat(t.admin_pnl_override||t.pnl||0);
+      const pnlColor=pnl>0?'#00D4AA':pnl<0?'#FF4757':'#888';
+      return `<tr>
+        <td>${t.first_name} ${t.last_name}<br><small style="color:#888">${t.account_number}</small></td>
+        <td><span style="color:${t.color};font-weight:700">${t.asset_symbol}</span><br><small>${t.asset_name}</small></td>
+        <td>$${parseFloat(t.amount_invested).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+        <td>$${parseFloat(t.current_value||t.amount_invested).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+        <td style="color:${pnlColor};font-weight:600">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
+        <td style="font-size:.74rem">${new Date(t.created_at).toLocaleDateString()}</td>
+        <td><button class="btn btn-sm" style="font-size:.72rem;padding:4px 8px" onclick="openPNL(${t.id},'${t.asset_symbol}',${t.amount_invested})"><i class="fas fa-edit"></i> Set P&L</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:#888">No active trades</td></tr>';
+  }
+  if(assets){
+    const atbl=document.getElementById('tv-assets-tbl');
+    if(atbl)atbl.innerHTML=assets.map(a=>{
+      const up=parseFloat(a.change_pct||0)>=0;
+      return `<tr>
+        <td><span style="color:${a.color};font-weight:700">${a.icon} ${a.symbol}</span></td>
+        <td>${a.name}</td>
+        <td><span class="badge">${a.category}</span></td>
+        <td style="font-weight:600">$${parseFloat(a.current_price).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}</td>
+        <td style="color:${up?'#00D4AA':'#FF4757'}">${up?'+':''}${parseFloat(a.change_pct||0).toFixed(2)}%</td>
+        <td><button class="btn btn-sm" style="font-size:.72rem;padding:4px 8px" onclick="openPrice(${a.id},'${a.name}',${a.current_price})"><i class="fas fa-edit"></i> Update</button></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function openPNL(id,sym,invested){
+  document.getElementById('tv-pnl-tid').value=id;
+  document.getElementById('tv-pnl-title').textContent='Set P&L for '+sym+' ($'+parseFloat(invested).toFixed(2)+' invested)';
+  document.getElementById('tv-pnl-val').value='';
+  document.getElementById('tv-pnl-modal').style.display='flex';
+}
+
+async function setPNL(){
+  const id=document.getElementById('tv-pnl-tid').value;
+  const pnl=document.getElementById('tv-pnl-val').value;
+  if(!pnl&&pnl!=='0'){alert('Enter a P&L value');return;}
+  const r=await api('/api/admin/trading/trades/'+id+'/set-pnl',{method:'POST',body:JSON.stringify({pnl:parseFloat(pnl)})});
+  if(r){alert('✅ P&L set! User will see this after 2 days from trade date.');closeModal('tv-pnl-modal');loadTrading();}
+}
+
+function openPrice(id,name,price){
+  document.getElementById('tv-price-aid').value=id;
+  document.getElementById('tv-price-title').textContent='Update '+name;
+  document.getElementById('tv-price-val').value=price;
+  document.getElementById('tv-price-chg').value='';
+  document.getElementById('tv-price-pct').value='';
+  document.getElementById('tv-price-modal').style.display='flex';
+}
+
+async function updatePrice(){
+  const id=document.getElementById('tv-price-aid').value;
+  const price=document.getElementById('tv-price-val').value;
+  const chg=document.getElementById('tv-price-chg').value;
+  const pct=document.getElementById('tv-price-pct').value;
+  if(!price){alert('Enter a price');return;}
+  const r=await api('/api/admin/trading/assets/'+id+'/update-price',{method:'POST',body:JSON.stringify({price:parseFloat(price),change_24h:parseFloat(chg)||0,change_pct:parseFloat(pct)||0})});
+  if(r){alert('✅ Price updated!');closeModal('tv-price-modal');loadTrading();}
+}
+
+function closeModal(id){document.getElementById(id).style.display='none';}
+
 </script>
 </body>
 </html>
