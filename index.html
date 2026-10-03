@@ -1194,8 +1194,9 @@ async function setPNL(){
   const id=document.getElementById('tv-pnl-tid').value;
   const pnl=document.getElementById('tv-pnl-val').value;
   if(!pnl&&pnl!=='0'){alert('Enter a P&L value');return;}
-  const r=await api('/api/admin/trading/trades/'+id+'/set-pnl',{method:'POST',body:JSON.stringify({pnl:parseFloat(pnl)})});
+  const r=await api('/api/admin/trading/trades/'+id+'/set-pnl','POST',{pnl:parseFloat(pnl)});
   if(r){alert('✅ P&L set! User will see this after 2 days from trade date.');closeModal('tv-pnl-modal');loadTrading();}
+  else alert('❌ Failed to set P&L');
 }
 
 function openPrice(id,name,price){
@@ -1213,8 +1214,9 @@ async function updatePrice(){
   const chg=document.getElementById('tv-price-chg').value;
   const pct=document.getElementById('tv-price-pct').value;
   if(!price){alert('Enter a price');return;}
-  const r=await api('/api/admin/trading/assets/'+id+'/update-price',{method:'POST',body:JSON.stringify({price:parseFloat(price),change_24h:parseFloat(chg)||0,change_pct:parseFloat(pct)||0})});
+  const r=await api('/api/admin/trading/assets/'+id+'/update-price','POST',{price:parseFloat(price),change_24h:parseFloat(chg)||0,change_pct:parseFloat(pct)||0});
   if(r){alert('✅ Price updated!');closeModal('tv-price-modal');loadTrading();}
+  else alert('❌ Failed to update price');
 }
 
 function closeModal(id){document.getElementById(id).style.display='none';}
