@@ -269,11 +269,75 @@ textarea.form-control{resize:vertical;min-height:96px;}
   .admin-pill{display:none;}
 }
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr;}}
+
+/* AtlasVault responsive refinement: retain the existing navy + teal identity */
+:where(button,a,input,select,textarea,[role="button"]){-webkit-tap-highlight-color:transparent;}
+:where(button,a,[role="button"]){touch-action:manipulation;}
+:where(button,a):focus-visible,:where(input,select,textarea):focus-visible{outline:2px solid var(--gold,#00D4AA);outline-offset:3px;}
+img,svg,video,canvas{max-width:100%;}
+@media(max-width:768px){
+  html{scroll-padding-top:76px;}
+  body{font-size:15px;}
+  nav{height:64px;padding-inline:4%;}
+  .nav-logo{font-size:1.08rem;gap:8px;}
+  .nav-logo .logo-icon{width:34px;height:34px;}
+  .nav-links{gap:14px;}
+  .hero{min-height:auto;padding:100px 5% 44px;display:flex;flex-direction:column;align-items:stretch;gap:28px;}
+  .hero-content{width:100%;max-width:none;}
+  .hero h1{font-size:clamp(2.1rem,8vw,3.2rem);line-height:1.12;}
+  .hero p{font-size:1rem;line-height:1.7;margin-bottom:24px;}
+  .hero-btns{gap:10px;margin-bottom:26px;}
+  .hero-btns a,.hero-btns button{min-height:46px;}
+  .hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:8px;}
+  .hero-stat{padding:14px;background:rgba(255,255,255,.035);border:1px solid var(--border,rgba(255,255,255,.08));border-radius:12px;}
+  .hero-stat .num{font-size:1.35rem;line-height:1.3;}
+  .hero-stat .lbl{font-size:.75rem;line-height:1.4;}
+  .hero-visual{position:relative;right:auto;top:auto;transform:none;width:100%;max-width:440px;margin:0 auto;}
+  .card-preview{padding:22px;}
+  .marquee-wrap{padding:13px 0;}
+  .marquee-item{padding-inline:18px;}
+  .al{grid-template-columns:1fr;min-height:100dvh;}
+  .alL{display:none;}
+  .alR{padding:24px 18px;align-items:flex-start;min-height:100dvh;}
+  .afw{max-width:520px;margin:auto;}
+  .fr2{grid-template-columns:1fr;gap:0;}
+  .fc{font-size:16px;min-height:46px;}
+  textarea.fc{min-height:100px;}
+  .btn{min-height:42px;}
+  .bfull{min-height:48px;}
+  .sp{gap:2px;}
+  .sd span{font-size:.62rem;text-align:center;}
+  .content{padding:14px!important;}
+  .topbar{padding:0 14px!important;}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px;}
+  .grid-2,.form-row{grid-template-columns:1fr!important;}
+  table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .modal,.modal-content,.dialog{width:min(94vw,560px);max-height:88dvh;overflow:auto;}
+}
+@media(max-width:480px){
+  .nav-btns{gap:6px;}
+  .btn-signin,.btn-open{padding:9px 12px;font-size:.78rem;}
+  .hero{padding-inline:4%;}
+  .hero-stats{gap:9px;}
+  .hero-stat{padding:11px;}
+  .hero-stat .num{font-size:1.18rem;}
+  .hero-visual{max-width:100%;}
+  .card-balance .val{font-size:1.45rem;}
+  .ath{font-size:1.45rem;}
+  .alR{padding:20px 14px;}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .sp{margin-bottom:18px;}
+  .sd .dot{width:24px;height:24px;}
+  .sd span{font-size:.56rem;}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
+
 </style>
 </head>
 <body>
 
   
+  <div id="loader">
   <div class="loader-content">
     <div class="logo-ring">
       <div class="logo-inner"><div class="logo-b">A</div></div>
@@ -345,10 +409,8 @@ textarea.form-control{resize:vertical;min-height:96px;}
         <div class="nav-item" onclick="go('deposits')"><i class="fas fa-arrow-down"></i>Deposits<span class="nbadge" id="bd-dep">0</span></div>
         <div class="nav-item" onclick="go('withdrawals')"><i class="fas fa-arrow-up"></i>Withdrawals<span class="nbadge" id="bd-wdw">0</span></div>
         <div class="nav-item" onclick="go('loans')"><i class="fas fa-hand-holding-dollar"></i>Loans<span class="nbadge" id="bd-loans">0</span></div>
-        <div class="nav-item" onclick="go('investments')"><i class="fas fa-chart-line"></i>Investments</div>
-        <div class="nav-item" onclick="go('trading')"><i class="fas fa-chart-bar"></i>Trading Control</div>
         <div class="s-label">Verification</div>
-        <div class="nav-item" onclick="go('kyc')"><i class="fas fa-id-card"></i>KYC Review<span class="nbadge" id="bd-kyc">0</span></div>
+        <div class="nav-item" onclick="go('kyc')"><i class="fas fa-id-card"></i>Tier Upgrade Review<span class="nbadge" id="bd-kyc">0</span></div>
         <div class="nav-item" onclick="go('cards')"><i class="fas fa-credit-card"></i>Virtual Cards</div>
         <div class="nav-item" onclick="go('irs')"><i class="fas fa-file-invoice-dollar"></i>IRS Tax Refund</div>
         <div class="s-label">Support</div>
@@ -386,14 +448,13 @@ textarea.form-control{resize:vertical;min-height:96px;}
             <div class="stat-card"><div class="si si-gold"><i class="fas fa-users"></i></div><div><div class="stat-label">Total Users</div><div class="stat-value" id="sv-users">-</div></div></div>
             <div class="stat-card"><div class="si si-green"><i class="fas fa-arrow-down"></i></div><div><div class="stat-label">Total Deposits</div><div class="stat-value" id="sv-deps">-</div></div></div>
             <div class="stat-card"><div class="si si-blue"><i class="fas fa-arrow-up"></i></div><div><div class="stat-label">Total Withdrawals</div><div class="stat-value" id="sv-wdws">-</div></div></div>
-            <div class="stat-card"><div class="si si-red"><i class="fas fa-id-card"></i></div><div><div class="stat-label">Pending KYC</div><div class="stat-value" id="sv-kyc">-</div></div></div>
+            <div class="stat-card"><div class="si si-red"><i class="fas fa-id-card"></i></div><div><div class="stat-label">Pending Tier Upgrades</div><div class="stat-value" id="sv-kyc">-</div></div></div>
             <div class="stat-card"><div class="si si-orange"><i class="fas fa-hand-holding-dollar"></i></div><div><div class="stat-label">Pending Loans</div><div class="stat-value" id="sv-loans">-</div></div></div>
-            <div class="stat-card"><div class="si si-purple"><i class="fas fa-chart-line"></i></div><div><div class="stat-label">Active Investments</div><div class="stat-value" id="sv-inv">-</div></div></div>
             <div class="stat-card"><div class="si si-blue"><i class="fas fa-ticket"></i></div><div><div class="stat-label">Open Tickets</div><div class="stat-value" id="sv-tix">-</div></div></div>
             <div class="stat-card"><div class="si si-gold"><i class="fas fa-file-invoice"></i></div><div><div class="stat-label">Pending IRS</div><div class="stat-value" id="sv-irs">-</div></div></div>
           </div>
           <div class="grid-2">
-            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-users"></i>Recent Users</div></div><div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Balance</th></tr></thead><tbody id="r-users"></tbody></table></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-users"></i>Recent Users</div></div><div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Tier</th><th>Balance</th></tr></thead><tbody id="r-users"></tbody></table></div></div>
             <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-exchange-alt"></i>Recent Transactions</div></div><div class="tw"><table><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody id="r-txns"></tbody></table></div></div>
           </div>
         </div>
@@ -401,7 +462,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
         <!-- USERS -->
         <div class="page" id="page-users">
           <div class="search-bar"><input class="search-input" id="u-search" placeholder="🔍 Search name, email, account number..." oninput="loadUsers()"><button class="btn btn-gold btn-sm" onclick="loadUsers()"><i class="fas fa-search"></i></button></div>
-          <div class="card"><div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Account No.</th><th>Balance</th><th>KYC</th><th>Status</th><th>Actions</th></tr></thead><tbody id="users-tbl"></tbody></table></div></div>
+          <div class="card"><div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Account No.</th><th>Balance</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead><tbody id="users-tbl"></tbody></table></div></div>
         </div>
 
         <!-- TRANSACTIONS -->
@@ -421,23 +482,15 @@ textarea.form-control{resize:vertical;min-height:96px;}
 
         <!-- KYC -->
         <div class="page" id="page-kyc">
-          <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-id-card"></i>KYC Submissions</div><button class="btn btn-out btn-sm" onclick="loadKYC()"><i class="fas fa-refresh"></i></button></div><div class="tw"><table><thead><tr><th>User</th><th>Email</th><th>Document</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead><tbody id="kyc-tbl"></tbody></table></div></div>
+          <div class="card" style="margin-bottom:18px"><div class="card-hdr"><div class="card-title"><i class="fas fa-clipboard-list"></i>Optional Upgrade Information</div></div><div class="card-body"><p style="color:var(--text2);font-size:.84rem;margin-bottom:12px">This optional text appears in the information box near the bottom of the user's Upgrade Account page. Leave it empty to hide the box.</p><div class="form-group"><label class="form-label" for="tier-upgrade-description">Upgrade information (optional)</label><textarea class="form-control" id="tier-upgrade-description" rows="4" placeholder="Enter optional instructions for account upgrades..."></textarea></div><button class="btn btn-gold" onclick="saveTierUpgradeDescription()"><i class="fas fa-save"></i>Save Information</button><span id="tier-upgrade-description-status" style="margin-left:10px;font-size:.8rem;color:var(--text2)"></span></div></div>
+          <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-id-card"></i>Tier Upgrade Requests</div><button class="btn btn-out btn-sm" onclick="loadKYC()"><i class="fas fa-refresh"></i></button></div><div class="tw"><table><thead><tr><th>User</th><th>Email</th><th>Requested Tier</th><th>Document</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead><tbody id="kyc-tbl"></tbody></table></div></div>
         </div>
 
         <!-- LOANS -->
         <div class="page" id="page-loans">
           <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-hand-holding-dollar"></i>Loan Applications</div><button class="btn btn-out btn-sm" onclick="loadLoans()"><i class="fas fa-refresh"></i></button></div><div class="tw"><table><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Duration</th><th>Purpose</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="loans-tbl"></tbody></table></div></div>
         </div>
-
-        <!-- INVESTMENTS -->
-        <div class="page" id="page-investments">
-          <div class="grid-2 mb-6">
-            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-layer-group"></i>Investment Plans</div><button class="btn btn-gold btn-sm" onclick="loadPlans()"><i class="fas fa-refresh"></i></button></div><div class="tw"><table><thead><tr><th>Plan</th><th>Min</th><th>Return</th><th>Days</th><th>Status</th><th>Edit</th></tr></thead><tbody id="plans-tbl"></tbody></table></div></div>
-            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-chart-line"></i>Active Investments</div></div><div class="tw"><table><thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Return</th><th>Matures</th><th>Status</th></tr></thead><tbody id="inv-tbl"></tbody></table></div></div>
-          </div>
-        </div>
-
-        <!-- CARDS -->
+<!-- CARDS -->
         <div class="page" id="page-cards">
           <div class="card"><div class="card-hdr"><div class="card-title"><i class="fas fa-credit-card"></i>Virtual Card Applications</div><button class="btn btn-out btn-sm" onclick="loadCards()"><i class="fas fa-refresh"></i></button></div><div class="tw"><table><thead><tr><th>User</th><th>Holder</th><th>Card Number</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="cards-tbl"></tbody></table></div></div>
         </div>
@@ -461,7 +514,6 @@ textarea.form-control{resize:vertical;min-height:96px;}
                     <button class="btn btn-sm" style="background:rgba(240,180,41,.1);color:var(--gold);border:1px solid rgba(240,180,41,.2);" onclick="genCode('exchange-fee')"><i class="fas fa-key"></i>Exchange Fee</button>
                     <button class="btn btn-sm" style="background:rgba(59,130,246,.1);color:var(--info);border:1px solid rgba(59,130,246,.2);" onclick="genCode('withdrawal-fee')"><i class="fas fa-key"></i>Withdrawal Fee</button>
                     <button class="btn btn-sm" style="background:rgba(16,185,129,.1);color:var(--success);border:1px solid rgba(16,185,129,.2);" onclick="genCode('vat')"><i class="fas fa-key"></i>VAT</button>
-                    <button class="btn btn-sm" style="background:rgba(139,92,246,.1);color:#8B5CF6;border:1px solid rgba(139,92,246,.2);" onclick="genCode('imf')"><i class="fas fa-key"></i>IMF</button>
                   </div>
                   <div class="chat-row">
                     <label style="cursor:pointer;color:var(--text2);padding:0 4px;"><i class="fas fa-paperclip"></i><input type="file" id="cs-file" accept="image/*" style="display:none" onchange="sendCSImg()"></label>
@@ -522,7 +574,6 @@ textarea.form-control{resize:vertical;min-height:96px;}
             <div class="m-card"><div class="m-title">📊 Total Transactions</div><div class="m-value" id="m-txns">-</div><div class="m-sub">All time</div></div>
             <div class="m-card"><div class="m-title">💰 Total Deposits</div><div class="m-value" id="m-dep">-</div><div class="m-sub" id="m-dep-sub">- pending</div></div>
             <div class="m-card"><div class="m-title">🏧 Total Withdrawals</div><div class="m-value" id="m-wdw">-</div><div class="m-sub" id="m-wdw-sub">- pending</div></div>
-            <div class="m-card"><div class="m-title">📈 Active Investments</div><div class="m-value" id="m-inv">-</div><div class="m-sub">Currently running</div></div>
             <div class="m-card"><div class="m-title">🗄️ DB Tables</div><div class="m-value" id="m-tables">-</div><div class="m-sub">Active tables</div></div>
             <div class="m-card"><div class="m-title">⏱️ Server Uptime</div><div class="m-value" id="m-up">-</div><div class="m-sub">Since last restart</div></div>
             <div class="m-card"><div class="m-title">🖥️ Memory Usage</div><div class="m-value" id="m-mem">-</div><div class="prog"><div class="prog-fill pf-green" id="m-mem-bar" style="width:0%"></div></div><div class="m-sub">Heap used</div></div>
@@ -531,34 +582,6 @@ textarea.form-control{resize:vertical;min-height:96px;}
 
         <!-- SETTINGS -->
 
-        <!-- TRADING CONTROL PAGE -->
-        <div class="page" id="page-trading">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-            <div class="stat-card"><div class="si si-green"><i class="fas fa-chart-bar"></i></div><div><div class="stat-label">Active Trades</div><div class="stat-value" id="tv-count">-</div></div></div>
-            <div class="stat-card"><div class="si si-blue"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-label">Total Invested</div><div class="stat-value" id="tv-volume">-</div></div></div>
-          </div>
-          <div class="card">
-            <div class="card-hdr">
-              <div class="card-title"><i class="fas fa-chart-bar"></i>Active User Trades</div>
-              <button class="btn btn-sm" onclick="loadTrading()"><i class="fas fa-refresh"></i></button>
-            </div>
-            <div class="tw"><table><thead><tr><th>User</th><th>Asset</th><th>Amount</th><th>Current Value</th><th>P&L</th><th>Date</th><th>Set P&L</th></tr></thead><tbody id="tv-tbl"></tbody></table></div>
-          </div>
-          <div class="card" style="margin-top:14px">
-            <div class="card-hdr"><div class="card-title"><i class="fas fa-coins"></i>Asset Prices</div></div>
-            <div class="tw"><table><thead><tr><th>Symbol</th><th>Name</th><th>Category</th><th>Current Price</th><th>24h Change</th><th>Update</th></tr></thead><tbody id="tv-assets-tbl"></tbody></table></div>
-          </div>
-        </div>
-        <!-- PNL MODAL -->
-        <div class="modal-overlay" id="tv-pnl-modal" style="display:none">
-          <div class="modal-box" style="max-width:400px">
-            <div class="modal-hdr"><span id="tv-pnl-title">Set P&L</span><button onclick="closeModal('tv-pnl-modal')">&times;</button></div>
-            <div class="modal-body">
-              <input type="hidden" id="tv-pnl-tid">
-              <div class="form-group"><label class="form-label">P&L Amount (positive = profit, negative = loss)</label><input class="form-control" type="number" id="tv-pnl-val" placeholder="e.g. 150 or -50"></div>
-              <div style="font-size:.78rem;color:var(--text2);margin-bottom:14px">⚠️ User will see this P&L after 2 days from trade date.</div>
-              <button class="btn btn-green" style="width:100%" onclick="setPNL()"><i class="fas fa-check"></i> Set P&L</button>
-            </div>
           </div>
         </div>
         <!-- PRICE MODAL -->
@@ -584,7 +607,6 @@ textarea.form-control{resize:vertical;min-height:96px;}
                 <div class="form-group"><label class="form-label">Deposits</label><select class="form-control" id="s-dep"><option value="true">✅ Enabled</option><option value="false">❌ Disabled</option></select></div>
                 <div class="form-group"><label class="form-label">Withdrawals</label><select class="form-control" id="s-wdw"><option value="true">✅ Enabled</option><option value="false">❌ Disabled</option></select></div>
                 <div class="form-group"><label class="form-label">Loans</label><select class="form-control" id="s-loans"><option value="true">✅ Enabled</option><option value="false">❌ Disabled</option></select></div>
-                <div class="form-group"><label class="form-label">Investments</label><select class="form-control" id="s-inv"><option value="true">✅ Enabled</option><option value="false">❌ Disabled</option></select></div>
                 <div class="form-group"><label class="form-label">Virtual Cards</label><select class="form-control" id="s-cards"><option value="true">✅ Enabled</option><option value="false">❌ Disabled</option></select></div>
                 <div class="form-group"><label class="form-label">Maintenance Mode</label><select class="form-control" id="s-maint"><option value="false">🟢 Off</option><option value="true">🔴 On (Blocks all users)</option></select></div>
                 <div class="form-group"><label class="form-label">Transaction Limit ($)</label><input class="form-control" id="s-limit" type="number"></div>
@@ -619,36 +641,17 @@ textarea.form-control{resize:vertical;min-height:96px;}
 
 <div class="modal-overlay" id="m-kyc">
   <div class="modal" style="max-width:680px">
-    <div class="modal-hdr"><div class="modal-title">KYC Review</div><button class="modal-close" onclick="closeM('m-kyc')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-hdr"><div class="modal-title">Tier Upgrade Review</div><button class="modal-close" onclick="closeM('m-kyc')"><i class="fas fa-times"></i></button></div>
     <div class="modal-body" id="m-kyc-body"></div>
     <div class="modal-foot">
-      <button class="btn btn-ok" onclick="approveKYC()"><i class="fas fa-check"></i>Approve KYC</button>
+      <button class="btn btn-ok" onclick="approveKYC()"><i class="fas fa-check"></i>Approve Tier Upgrade</button>
       <button class="btn btn-err" onclick="rejectKYC()"><i class="fas fa-times"></i>Reject KYC</button>
       <button class="btn btn-out" onclick="closeM('m-kyc')">Close</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="m-plan">
-  <div class="modal">
-    <div class="modal-hdr"><div class="modal-title">Edit Investment Plan</div><button class="modal-close" onclick="closeM('m-plan')"><i class="fas fa-times"></i></button></div>
-    <div class="modal-body">
-      <input type="hidden" id="plan-id">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Min Amount ($)</label><input class="form-control" id="plan-min" type="number"></div>
-        <div class="form-group"><label class="form-label">Return Amount ($)</label><input class="form-control" id="plan-ret" type="number"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Duration (days)</label><input class="form-control" id="plan-days" type="number"></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="plan-status"><option value="true">Active</option><option value="false">Inactive</option></select></div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-gold" onclick="savePlan()"><i class="fas fa-save"></i>Save</button>
-      <button class="btn btn-out" onclick="closeM('m-plan')">Cancel</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="modal-overlay" id="m-tix">
   <div class="modal">
@@ -670,8 +673,7 @@ textarea.form-control{resize:vertical;min-height:96px;}
 
 <script>
 // ===== AUTO DETECT API =====
-const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
-const API = isLocal ? 'http://localhost:5000' : 'https://atlasvault-backend.onrender.com';
+const API = 'https://atlasvault-backend.onrender.com';
 
 let token = localStorage.getItem('avf_admin');
 let curUID = null, curSUID = null, curKYCID = null, curUD = null;
@@ -787,7 +789,7 @@ async function apiForm(path,method,fd){
 }
 
 // ===== NAV =====
-const titles={dashboard:'Dashboard',users:'User Management',transactions:'All Transactions',deposits:'Deposit Requests',withdrawals:'Withdrawal Requests',kyc:'KYC Review',loans:'Loan Applications',investments:'Investments',trading:'Trading Control',cs:'Customer Service',sup:'Support Chat',tickets:'Support Tickets',broadcast:'Broadcast',monitor:'System Monitor',settings:'Settings',cards:'Virtual Cards',irs:'IRS Tax Refund'};
+const titles={dashboard:'Dashboard',users:'User Management',transactions:'All Transactions',deposits:'Deposit Requests',withdrawals:'Withdrawal Requests',kyc:'Tier Upgrade Review',loans:'Loan Applications',cs:'Customer Service',sup:'Support Chat',tickets:'Support Tickets',broadcast:'Broadcast',monitor:'System Monitor',settings:'Settings',cards:'Virtual Cards',irs:'IRS Tax Refund'};
 function go(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -798,7 +800,7 @@ function go(name){
   document.querySelectorAll('.chat-layout').forEach(l=>l.classList.remove('chat-open'));
   if(csInt){clearInterval(csInt);csInt=null;}
   if(supInt){clearInterval(supInt);supInt=null;}
-  const loaders={dashboard:loadDash,users:loadUsers,transactions:loadTxns,deposits:loadDeposits,withdrawals:loadWdws,kyc:loadKYC,loans:loadLoans,investments:()=>{loadInv();loadPlans();},trading:loadTrading,cards:loadCards,irs:loadIRS,cs:loadCS,sup:loadSup,tickets:loadTickets,monitor:loadMonitor,settings:loadSettings};
+  const loaders={dashboard:loadDash,users:loadUsers,transactions:loadTxns,deposits:loadDeposits,withdrawals:loadWdws,kyc:()=>{loadTierUpgradeDescription();loadKYC();},loans:loadLoans,cards:loadCards,irs:loadIRS,cs:loadCS,sup:loadSup,tickets:loadTickets,monitor:loadMonitor,settings:loadSettings};
   if(loaders[name])loaders[name]();
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active');}
@@ -814,7 +816,7 @@ function openM(id){document.getElementById(id).classList.add('active');}
 // ===== FORMATTERS =====
 const fmt=(a,c='USD')=>`${c} ${parseFloat(a||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 const fmtD=d=>d?new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
-const kycB=s=>({verified:`<span class="badge b-ok">✅ Verified</span>`,pending:`<span class="badge b-warn">⏳ Pending</span>`,rejected:`<span class="badge b-err">❌ Rejected</span>`,unverified:`<span class="badge b-info">🔲 Unverified</span>`})[s]||`<span class="badge">${s}</span>`;
+const kycB=s=>({verified:`<span class="badge b-ok">Tier Approved</span>`,pending:`<span class="badge b-warn">Upgrade Pending</span>`,rejected:`<span class="badge b-err">Upgrade Rejected</span>`,unverified:`<span class="badge b-info">Tier 0</span>`})[s]||`<span class="badge">${s}</span>`;
 const stB=s=>({approved:`<span class="badge b-ok">✅ Approved</span>`,completed:`<span class="badge b-ok">✅ Completed</span>`,active:`<span class="badge b-ok">✅ Active</span>`,pending:`<span class="badge b-warn">⏳ Pending</span>`,rejected:`<span class="badge b-err">❌ Rejected</span>`,failed:`<span class="badge b-err">❌ Failed</span>`,matured:`<span class="badge b-gold">💹 Matured</span>`,open:`<span class="badge b-info">📂 Open</span>`,resolved:`<span class="badge b-ok">✅ Resolved</span>`})[s]||`<span class="badge">${s}</span>`;
 const priB=p=>({low:`<span class="badge b-info">🟢 Low</span>`,medium:`<span class="badge b-warn">🟡 Medium</span>`,high:`<span class="badge b-err">🔴 High</span>`})[p]||`<span class="badge">${p}</span>`;
 
@@ -827,7 +829,6 @@ async function loadDash(){
   document.getElementById('sv-wdws').textContent=`$${parseFloat(s.total_withdrawals||0).toLocaleString()}`;
   document.getElementById('sv-kyc').textContent=s.pending_kyc||0;
   document.getElementById('sv-loans').textContent=s.pending_loans||0;
-  document.getElementById('sv-inv').textContent=s.active_investments||0;
   document.getElementById('sv-tix').textContent=s.open_tickets||0;
   document.getElementById('sv-irs').textContent=s.pending_irs||0;
   document.getElementById('r-users').innerHTML=d.recent_users?.map(u=>`<tr><td><strong>${u.first_name} ${u.last_name}</strong></td><td style="font-size:.77rem;color:var(--text2)">${u.email}</td><td>${kycB(u.kyc_status)}</td><td class="text-gold">${fmt(u.balance,u.currency)}</td></tr>`).join('')||'<tr><td colspan="4" class="t-empty"><i class="fas fa-inbox"></i>No users</td></tr>';
@@ -872,7 +873,7 @@ async function viewUser(id){
   document.getElementById('m-user-title').textContent=`${u.first_name} ${u.last_name}`;
   document.getElementById('toggle-btn').textContent=u.is_active?'🚫 Suspend':'✅ Activate';
   document.getElementById('m-user-body').innerHTML=`
-    ${['Full Name','Username','Email','Phone','Country','Account Number','Account Type','Currency','Balance','KYC Status','Status','Joined'].map((l,i)=>`<div class="d-row"><span class="d-label">${l}</span><span class="d-val">${[`${u.first_name} ${u.middle_name||''} ${u.last_name}`,`@${u.username}`,u.email,u.phone||'-',u.country||'-',`<span style="font-family:monospace">${u.account_number}</span>`,u.account_type||'-',u.preferred_currency||u.currency,`<strong class="text-gold">${fmt(u.balance,u.preferred_currency||u.currency)}</strong>`,kycB(u.kyc_status),u.is_active?'<span class="badge b-ok">Active</span>':'<span class="badge b-err">Suspended</span>',fmtD(u.created_at)][i]}</span></div>`).join('')}
+    ${['Full Name','Username','Email','Phone','Country','Account Number','Account Type','Currency','Balance','Account Tier','Status','Joined'].map((l,i)=>`<div class="d-row"><span class="d-label">${l}</span><span class="d-val">${[`${u.first_name} ${u.middle_name||''} ${u.last_name}`,`@${u.username}`,u.email,u.phone||'-',u.country||'-',`<span style="font-family:monospace">${u.account_number}</span>`,u.account_type||'-',u.preferred_currency||u.currency,`<strong class="text-gold">${fmt(u.balance,u.preferred_currency||u.currency)}</strong>`,kycB(u.kyc_status),u.is_active?'<span class="badge b-ok">Active</span>':'<span class="badge b-err">Suspended</span>',fmtD(u.created_at)][i]}</span></div>`).join('')}
     <p style="font-size:.79rem;font-weight:600;color:var(--text2);margin:14px 0 8px">Recent Transactions</p>
     <div class="tw"><table><thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>${d.transactions?.slice(0,5).map(t=>`<tr><td><span class="badge ${t.type==='credit'?'b-ok':'b-err'}">${t.type}</span></td><td>${fmt(t.amount,t.currency)}</td><td>${stB(t.status)}</td><td style="font-size:.72rem">${fmtD(t.created_at)}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;padding:12px;color:var(--text2)">No transactions</td></tr>'}</tbody></table></div>`;
   openM('m-user');
@@ -904,26 +905,21 @@ async function appWdw(id){if(!confirm('Approve withdrawal? Confirm you sent the 
 async function rejWdw(id){const n=prompt('Reason (balance will be refunded):');const r=await api(`/api/admin/withdrawals/${id}/reject`,'PUT',{note:n});if(r&&!r.error){toast('Rejected & balance refunded','info');loadWdws();}else toast(r?.error||'Failed','error');}
 
 // ===== KYC =====
+
+async function loadTierUpgradeDescription(){const el=document.getElementById('tier-upgrade-description');if(!el)return;const r=await api('/api/admin/tier-upgrade-description');if(r&&!r.error){el.value=r.description||'';try{localStorage.setItem('av_tier_upgrade_description',el.value);}catch(e){}}else{try{el.value=localStorage.getItem('av_tier_upgrade_description')||'';}catch(e){el.value='';}}}
+async function saveTierUpgradeDescription(){const el=document.getElementById('tier-upgrade-description');if(!el)return;const description=el.value.trim();const r=await api('/api/admin/tier-upgrade-description','PUT',{description});if(r&&!r.error){try{localStorage.setItem('av_tier_upgrade_description',description);}catch(e){}const st=document.getElementById('tier-upgrade-description-status');if(st)st.textContent='Saved to the server.';toast('Upgrade information saved.','success');}else toast(r?.error||'Could not save upgrade information. Check backend migration and connection.','error');}
 async function loadKYC(){
-  const d=await api('/api/admin/kyc');if(!d)return;
-  document.getElementById('kyc-tbl').innerHTML=d.map(k=>`<tr><td><strong>${k.first_name} ${k.last_name}</strong></td><td style="font-size:.79rem">${k.email}</td><td>${k.document_type||'-'}</td><td>${stB(k.status)}</td><td style="font-size:.74rem">${fmtD(k.created_at)}</td><td><button class="btn btn-info btn-sm" onclick="reviewKYC(${k.id})"><i class="fas fa-eye"></i>Review</button></td></tr>`).join('')||'<tr><td colspan="6" class="t-empty"><i class="fas fa-id-card"></i>No KYC submissions</td></tr>';
+  const d=await api('/api/admin/tier-upgrade-requests');if(!d)return;
+  document.getElementById('kyc-tbl').innerHTML=d.map(k=>`<tr><td><strong>${k.first_name||''} ${k.last_name||''}</strong></td><td style="font-size:.79rem">${k.email||''}</td><td>Tier ${k.requested_tier}</td><td>${k.document_url?`<a href="${k.document_url}" target="_blank" rel="noopener">View document</a>`:'Not available'}</td><td>${stB(k.status)}</td><td style="font-size:.74rem">${fmtD(k.created_at)}</td><td>${k.status==='pending'?`<button class="btn btn-info btn-sm" onclick="reviewKYC(${k.id})"><i class="fas fa-eye"></i>Review</button>`:'-'}</td></tr>`).join('')||'<tr><td colspan="7" class="t-empty"><i class="fas fa-id-card"></i>No tier upgrade requests</td></tr>';
 }
 async function reviewKYC(id){
-  const d=await api('/api/admin/kyc');const k=d?.find(x=>x.id===id);if(!k)return;curKYCID=id;
-  document.getElementById('m-kyc-body').innerHTML=`
-    <div class="form-row">
-      <div>${['Full Name','Email','Phone','DOB','Gender','Nationality','SSN/NI','Employment','Income','Address'].map((l,i)=>`<div class="d-row"><span class="d-label">${l}</span><span class="d-val">${[k.full_name,k.email,k.phone,k.date_of_birth,k.gender,k.nationality,k.ssn,k.employment_type,k.annual_income,`${k.address_line||''} ${k.city||''} ${k.state||''}`][i]||'-'}</span></div>`).join('')}</div>
-      <div>${['Beneficiary','Relationship','Document','Status'].map((l,i)=>`<div class="d-row"><span class="d-label">${l}</span><span class="d-val">${[k.beneficiary_name,k.beneficiary_relationship,k.document_type,stB(k.status)][i]||'-'}</span></div>`).join('')}${k.admin_note?`<div class="d-row"><span class="d-label">Note</span><span class="d-val">${k.admin_note}</span></div>`:''}</div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-      ${k.document_front?`<div><p style="font-size:.7rem;color:var(--text2);margin-bottom:5px">Front</p><img src="${k.document_front}" style="width:155px;height:95px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openLB('${k.document_front}')"></div>`:''}
-      ${k.document_back?`<div><p style="font-size:.7rem;color:var(--text2);margin-bottom:5px">Back</p><img src="${k.document_back}" style="width:155px;height:95px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openLB('${k.document_back}')"></div>`:''}
-      ${k.passport_photo?`<div><p style="font-size:.7rem;color:var(--text2);margin-bottom:5px">Photo</p><img src="${k.passport_photo}" style="width:95px;height:95px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openLB('${k.passport_photo}')"></div>`:''}
-    </div>`;
+  const d=await api('/api/admin/tier-upgrade-requests');const k=d?.find(x=>Number(x.id)===Number(id));if(!k)return;curKYCID=id;
+  document.getElementById('m-kyc-body').innerHTML=`<div class="form-row"><div><div class="d-row"><span class="d-label">Name</span><span class="d-val">${k.first_name||''} ${k.last_name||''}</span></div><div class="d-row"><span class="d-label">Email</span><span class="d-val">${k.email||'-'}</span></div><div class="d-row"><span class="d-label">Account</span><span class="d-val">${k.account_number||'-'}</span></div></div><div><div class="d-row"><span class="d-label">Requested tier</span><span class="d-val">Tier ${k.requested_tier}</span></div><div class="d-row"><span class="d-label">Document type</span><span class="d-val">${k.document_type||'-'}</span></div><div class="d-row"><span class="d-label">Status</span><span class="d-val">${k.status}</span></div>${k.admin_note?`<div class="d-row"><span class="d-label">Previous note</span><span class="d-val">${k.admin_note}</span></div>`:''}</div></div>${k.document_url?`<p style="margin-top:14px"><a href="${k.document_url}" target="_blank" rel="noopener" class="btn btn-info btn-sm"><i class="fas fa-file-arrow-up"></i>Open verification document (5-minute link)</a></p>`:'<p style="margin-top:14px;color:var(--danger)">No document link is available. Do not approve until the evidence has been reviewed.</p>'}<div class="form-group" style="margin-top:16px"><label class="form-label" for="tier-review-note">Admin note (optional; required when rejecting)</label><textarea id="tier-review-note" class="form-control" rows="3" placeholder="Review notes for the user"></textarea></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-ok" onclick="decideTierUpgrade('approved')" ${!k.document_url?'disabled':''}><i class="fas fa-check"></i>Approve tier</button><button class="btn btn-err" onclick="decideTierUpgrade('rejected')"><i class="fas fa-times"></i>Reject</button></div>`;
   openM('m-kyc');
 }
-async function approveKYC(){if(!confirm('Approve KYC?'))return;const r=await api(`/api/admin/kyc/${curKYCID}/approve`,'PUT');if(r&&!r.error){toast('KYC Approved!','success');closeM('m-kyc');loadKYC();refreshBadges();}else toast(r?.error||'Failed','error');}
-async function rejectKYC(){const n=prompt('Reason for rejection:');if(!n)return;const r=await api(`/api/admin/kyc/${curKYCID}/reject`,'PUT',{note:n});if(r&&!r.error){toast('KYC Rejected','info');closeM('m-kyc');loadKYC();refreshBadges();}else toast(r?.error||'Failed','error');}
+async function decideTierUpgrade(decision){const note=document.getElementById('tier-review-note')?.value||'';if(decision==='rejected'&&!note.trim()){toast('Enter a reason for rejection.','error');return;}if(!confirm((decision==='approved'?'Approve':'Reject')+' this tier upgrade request?'))return;const r=await api(`/api/admin/tier-upgrade-requests/${curKYCID}/decision`,'PUT',{decision,note});if(r&&!r.error){toast('Tier request '+decision+'.','success');closeM('m-kyc');loadKYC();refreshBadges();}else toast(r?.error||'Failed','error');}
+async function approveKYC(){return decideTierUpgrade('approved')}
+async function rejectKYC(){return decideTierUpgrade('rejected')}
 
 // ===== LOANS =====
 async function loadLoans(){
@@ -932,18 +928,6 @@ async function loadLoans(){
 }
 async function appLoan(id){const rate=prompt('Interest rate (%)','5')||'5';const r=await api(`/api/admin/loans/${id}/approve`,'PUT',{interest_rate:+rate});if(r&&!r.error){toast('Loan approved!','success');loadLoans();refreshBadges();}else toast(r?.error||'Failed','error');}
 async function rejLoan(id){const n=prompt('Reason:');const r=await api(`/api/admin/loans/${id}/reject`,'PUT',{note:n});if(r&&!r.error){toast('Loan rejected','info');loadLoans();}else toast(r?.error||'Failed','error');}
-
-// ===== INVESTMENTS =====
-async function loadInv(){
-  const d=await api('/api/admin/investments');if(!d)return;
-  document.getElementById('inv-tbl').innerHTML=d.map(i=>`<tr><td>${i.first_name} ${i.last_name}</td><td><span class="badge b-gold">${i.plan_name}</span></td><td class="text-gold">${fmt(i.amount,i.currency)}</td><td class="text-ok">${fmt(i.expected_return,i.currency)}</td><td style="font-size:.74rem">${fmtD(i.maturity_date)}</td><td>${stB(i.status)}</td></tr>`).join('')||'<tr><td colspan="6" class="t-empty"><i class="fas fa-chart-line"></i>No investments</td></tr>';
-}
-async function loadPlans(){
-  const d=await fetch(`${API}/api/investments/plans`).then(r=>r.json()).catch(()=>[]);
-  document.getElementById('plans-tbl').innerHTML=d.map(p=>`<tr><td><strong>${p.name}</strong></td><td>$${parseFloat(p.minimum_amount).toLocaleString()}</td><td class="text-ok">$${parseFloat(p.return_amount).toLocaleString()}</td><td>${p.duration_days}d</td><td>${p.is_active?'<span class="badge b-ok">Active</span>':'<span class="badge b-err">Inactive</span>'}</td><td><button class="btn btn-info btn-sm" onclick="editPlan(${p.id},${p.minimum_amount},${p.return_amount},${p.duration_days},${p.is_active})"><i class="fas fa-edit"></i></button></td></tr>`).join('')||'<tr><td colspan="6" class="t-empty">No plans</td></tr>';
-}
-function editPlan(id,mn,rt,dy,ac){document.getElementById('plan-id').value=id;document.getElementById('plan-min').value=mn;document.getElementById('plan-ret').value=rt;document.getElementById('plan-days').value=dy;document.getElementById('plan-status').value=ac.toString();openM('m-plan');}
-async function savePlan(){const id=document.getElementById('plan-id').value;const r=await api(`/api/admin/investment-plans/${id}`,'PUT',{minimum_amount:document.getElementById('plan-min').value,return_amount:document.getElementById('plan-ret').value,duration_days:document.getElementById('plan-days').value,is_active:document.getElementById('plan-status').value==='true'});if(r&&!r.error){toast('Plan updated!','success');closeM('m-plan');loadPlans();}else toast(r?.error||'Failed','error');}
 
 // ===== CARDS =====
 async function loadCards(){
@@ -993,7 +977,7 @@ async function sendCSMsg(){const i=document.getElementById('cs-input');const m=i
 async function sendCSImg(){const f=document.getElementById('cs-file').files[0];if(!f||!curUID)return;const fd=new FormData();fd.append('image',f);await apiForm(`/api/admin/chat/${curUID}/send`,'POST',fd);document.getElementById('cs-file').value='';fetchCSMsgs();}
 async function genCode(type){
   if(!curUID){toast('Select a user first','error');return;}
-  const ep={'exchange-fee':'gen-exchange-fee','withdrawal-fee':'gen-withdrawal-fee',vat:'gen-vat',imf:'gen-imf'}[type];
+  const ep={'exchange-fee':'gen-exchange-fee','withdrawal-fee':'gen-withdrawal-fee',vat:'gen-vat'}[type];
   const r=await api(`/api/admin/chat/${curUID}/${ep}`,'POST');
   if(r&&!r.error){toast(`${type.toUpperCase()} code sent: ${r.code}`,'success');fetchCSMsgs();}
   else toast(r?.error||'Failed to generate code','error');
@@ -1057,7 +1041,6 @@ async function loadMonitor(){
   document.getElementById('m-dep-sub').textContent=`${d.deposits.pending} pending`;
   document.getElementById('m-wdw').textContent=`$${d.withdrawals.amount.toLocaleString()}`;
   document.getElementById('m-wdw-sub').textContent=`${d.withdrawals.pending} pending`;
-  document.getElementById('m-inv').textContent=d.investments.active;
   document.getElementById('m-tables').textContent=db.tables;
   const up=Math.floor(d.server.uptime);
   document.getElementById('m-up').textContent=`${Math.floor(up/3600)}h ${Math.floor((up%3600)/60)}m`;
@@ -1075,7 +1058,6 @@ async function loadSettings(){
     if(s.deposits_enabled)document.getElementById('s-dep').value=s.deposits_enabled;
     if(s.withdrawals_enabled)document.getElementById('s-wdw').value=s.withdrawals_enabled;
     if(s.loans_enabled)document.getElementById('s-loans').value=s.loans_enabled;
-    if(s.investments_enabled)document.getElementById('s-inv').value=s.investments_enabled;
     if(s.cards_enabled)document.getElementById('s-cards').value=s.cards_enabled;
     if(s.maintenance_mode)document.getElementById('s-maint').value=s.maintenance_mode;
     if(s.transaction_limit)document.getElementById('s-limit').value=s.transaction_limit;
@@ -1086,7 +1068,7 @@ async function loadSettings(){
   }catch(e){document.getElementById('rates-form').innerHTML='<p class="text-muted">Start backend to see rates</p>';}
 }
 async function saveSettings(){
-  const r=await api('/api/admin/settings','PUT',{bank_name:document.getElementById('s-name').value,deposits_enabled:document.getElementById('s-dep').value,withdrawals_enabled:document.getElementById('s-wdw').value,loans_enabled:document.getElementById('s-loans').value,investments_enabled:document.getElementById('s-inv').value,cards_enabled:document.getElementById('s-cards').value,maintenance_mode:document.getElementById('s-maint').value,transaction_limit:document.getElementById('s-limit').value});
+  const r=await api('/api/admin/settings','PUT',{bank_name:document.getElementById('s-name').value,deposits_enabled:document.getElementById('s-dep').value,withdrawals_enabled:document.getElementById('s-wdw').value,loans_enabled:document.getElementById('s-loans').value,cards_enabled:document.getElementById('s-cards').value,maintenance_mode:document.getElementById('s-maint').value,transaction_limit:document.getElementById('s-limit').value});
   if(r&&!r.error)toast('Settings saved!','success');else toast(r?.error||'Failed','error');
 }
 async function saveRates(curs){
@@ -1137,86 +1119,6 @@ function showResetPin() {
     if (d.success) { alert('✅ PIN reset successfully!\nNew PIN: ' + np); cM('muser'); }
     else alert('❌ Error: ' + (d.error || 'Failed'));
   });
-}
-
-// ===== ADMIN TRADING CONTROL =====
-async function loadTrading(){
-  const [trades, assets] = await Promise.all([
-    api('/api/admin/trading/trades'),
-    api('/api/admin/trading/assets')
-  ]);
-  if(trades){
-    const total=trades.length;
-    const vol=trades.reduce((s,t)=>s+parseFloat(t.amount_invested||0),0);
-    const cel=document.getElementById('tv-count');
-    const vel=document.getElementById('tv-volume');
-    if(cel)cel.textContent=total;
-    if(vel)vel.textContent='$'+vol.toLocaleString(undefined,{minimumFractionDigits:2});
-    const tbl=document.getElementById('tv-tbl');
-    if(tbl)tbl.innerHTML=trades.map(t=>{
-      const pnl=parseFloat(t.admin_pnl_override||t.pnl||0);
-      const pnlColor=pnl>0?'#00D4AA':pnl<0?'#FF4757':'#888';
-      return `<tr>
-        <td>${t.first_name} ${t.last_name}<br><small style="color:#888">${t.account_number}</small></td>
-        <td><span style="color:${t.color};font-weight:700">${t.asset_symbol}</span><br><small>${t.asset_name}</small></td>
-        <td>$${parseFloat(t.amount_invested).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-        <td>$${parseFloat(t.current_value||t.amount_invested).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-        <td style="color:${pnlColor};font-weight:600">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
-        <td style="font-size:.74rem">${new Date(t.created_at).toLocaleDateString()}</td>
-        <td><button class="btn btn-sm" style="font-size:.72rem;padding:4px 8px" onclick="openPNL(${t.id},'${t.asset_symbol}',${t.amount_invested})"><i class="fas fa-edit"></i> Set P&L</button></td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:#888">No active trades</td></tr>';
-  }
-  if(assets){
-    const atbl=document.getElementById('tv-assets-tbl');
-    if(atbl)atbl.innerHTML=assets.map(a=>{
-      const up=parseFloat(a.change_pct||0)>=0;
-      return `<tr>
-        <td><span style="color:${a.color};font-weight:700">${a.icon} ${a.symbol}</span></td>
-        <td>${a.name}</td>
-        <td><span class="badge">${a.category}</span></td>
-        <td style="font-weight:600">$${parseFloat(a.current_price).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}</td>
-        <td style="color:${up?'#00D4AA':'#FF4757'}">${up?'+':''}${parseFloat(a.change_pct||0).toFixed(2)}%</td>
-        <td><button class="btn btn-sm" style="font-size:.72rem;padding:4px 8px" onclick="openPrice(${a.id},'${a.name}',${a.current_price})"><i class="fas fa-edit"></i> Update</button></td>
-      </tr>`;
-    }).join('');
-  }
-}
-
-function openPNL(id,sym,invested){
-  document.getElementById('tv-pnl-tid').value=id;
-  document.getElementById('tv-pnl-title').textContent='Set P&L for '+sym+' ($'+parseFloat(invested).toFixed(2)+' invested)';
-  document.getElementById('tv-pnl-val').value='';
-  document.getElementById('tv-pnl-modal').style.display='flex';
-}
-
-async function setPNL(){
-  const id=document.getElementById('tv-pnl-tid').value;
-  const pnl=document.getElementById('tv-pnl-val').value;
-  if(!pnl&&pnl!=='0'){alert('Enter a P&L value');return;}
-  const r=await api('/api/admin/trading/trades/'+id+'/set-pnl','POST',{pnl:parseFloat(pnl)});
-  if(r){alert('✅ P&L set! User will see this after 2 days from trade date.');closeModal('tv-pnl-modal');loadTrading();}
-  else alert('❌ Failed to set P&L');
-}
-
-function openPrice(id,name,price){
-  document.getElementById('tv-price-aid').value=id;
-  document.getElementById('tv-price-title').textContent='Update '+name;
-  document.getElementById('tv-price-val').value=price;
-  document.getElementById('tv-price-chg').value='';
-  document.getElementById('tv-price-pct').value='';
-  document.getElementById('tv-price-modal').style.display='flex';
-}
-
-async function updatePrice(){
-  const id=document.getElementById('tv-price-aid').value;
-  const price=document.getElementById('tv-price-val').value;
-  const chg=document.getElementById('tv-price-chg').value;
-  const pct=document.getElementById('tv-price-pct').value;
-  if(!price){alert('Enter a price');return;}
-  const r=await api('/api/admin/trading/assets/'+id+'/update-price','POST',{price:parseFloat(price),change_24h:parseFloat(chg)||0,change_pct:parseFloat(pct)||0});
-  if(r){alert('✅ Price updated!');closeModal('tv-price-modal');loadTrading();}
-  else alert('❌ Failed to update price');
 }
 
 function closeModal(id){document.getElementById(id).style.display='none';}
